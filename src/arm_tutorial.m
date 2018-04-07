@@ -100,7 +100,7 @@ HJIextraArgs.deleteLastPlot = true; %delete previous plot as you update
 [data, tau2, ~] = ...
   HJIPDE_solve(data0, tau, schemeData, 'maxVOverTime', HJIextraArgs);
 
-save('armN81.mat', data, tau2)
+save('armN81.mat', 'data', 'tau2')
 
 %% Compute optimal trajectory from some initial state
 if compTraj
