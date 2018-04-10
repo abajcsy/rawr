@@ -34,7 +34,7 @@ function arm_tutorial()
 % TODO should this be from 0 to 2pi for all links or joint limits?
 grid_min = [0; 0; -1; -1]; % Lower corner of computation domain
 grid_max = [pi; 2*pi; 1; 1];    % Upper corner of computation domain
-N = [81;81;81;81];         % Number of grid points per dimension
+N = [11;11;11;11];         % Number of grid points per dimension
 pdDims = [1; 2];               % 1st and 2nd dimension is periodic
 g = createGrid(grid_min, grid_max, N, pdDims);
 % Use "g = createGrid(grid_min, grid_max, N);" if there are no periodic
@@ -100,7 +100,7 @@ HJIextraArgs.deleteLastPlot = true; %delete previous plot as you update
 [data, tau2, ~] = ...
   HJIPDE_solve(data0, tau, schemeData, 'maxVOverTime', HJIextraArgs);
 
-save('armN81.mat', 'data', 'tau2')
+save('junk.mat', 'data', 'tau2')
 
 %% Compute optimal trajectory from some initial state
 if compTraj
