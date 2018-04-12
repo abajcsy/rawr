@@ -1,68 +1,35 @@
-function arm_tutorial()
-% 1. Run Backward Reachable Set (BRS) with a goal
-%     uMode = 'min' <-- goal
-%     minWith = 'none' <-- Set (not tube)
-%     compTraj = false <-- no trajectory
-% 2. Run BRS with goal, then optimal trajectory
-%     uMode = 'min' <-- goal
-%     minWith = 'none' <-- Set (not tube)
-%     compTraj = true <-- compute optimal trajectory
-% 3. Run Backward Reachable Tube (BRT) with a goal, then optimal trajectory
-%     uMode = 'min' <-- goal
-%     minWith = 'zero' <-- Tube (not set)
-%     compTraj = true <-- compute optimal trajectory
-% 4. Add disturbance
-%     dStep1: define a dMax (dMax = [.25, .25, 0];)
-%     dStep2: define a dMode (opposite of uMode)
-%     dStep3: input dMax when creating your DubinsCar
-%     dStep4: add dMode to schemeData
-% 5. Change to an avoid BRT rather than a goal BRT
-%     uMode = 'max' <-- avoid
-%     dMode = 'min' <-- opposite of uMode
-%     minWith = 'zero' <-- Tube (not set)
-%     compTraj = false <-- no trajectory
-% 6. Change to a Forward Reachable Tube (FRT)
-%     add schemeData.tMode = 'forward'
-%     note: now having uMode = 'max' essentially says "see how far I can
-%     reach"
-% 7. Add obstacles
-%     add the following code:
-%     obstacles = shapeCylinder(g, 3, [-1.5; 1.5; 0], 0.75);
-%     HJIextraArgs.obstacles = obstacles;
-
+function arm2D_tutorial()
 %% Grid
 % TODO should this be from 0 to 2pi for all links or joint limits?
-grid_min = [0; 0; -1; -1]; % Lower corner of computation domain
-grid_max = [pi; 2*pi; 1; 1];    % Upper corner of computation domain
-N = [11;11;11;11];         % Number of grid points per dimension
-pdDims = [1; 2];               % 1st and 2nd dimension is periodic
+grid_min = [0; -pi];          % Lower corner of computation domain
+grid_max = [pi; pi];      % Upper corner of computation domain
+N = [81;81];                 % Number of grid points per dimension
+pdDims = 2;                 % 2nd dimension is periodic (1st goes from 0 to pi only)
 g = createGrid(grid_min, grid_max, N, pdDims);
 % Use "g = createGrid(grid_min, grid_max, N);" if there are no periodic
 % state space dimensions
 
 %% robot arm
 % Define dynamic system
-xinit = [pi/2, pi/2, 0, 0];
+xinit = [pi/2, 0];
 % input bounds
-uMin = [-3, -3];
-uMax = [3, 3];
+uMin = [-1, -1];
+uMax = [1, 1];
 % link properties
 l1 = 1;
 l2 = 1;
-m1 = 0.5;
-m2 = 0.5;
-dims = 1:4;
+dims = 1:2;
 % do dStep1 here
 % obj = DubinsCar(x, wMax, speed, dMax)
-arm = Arm4D(xinit, uMin, uMax, dims, l1, l2, m1, m2, grid_min, grid_max); %do dStep3 here
+arm = Arm2D(xinit, uMin, uMax, dims, l1, l2, grid_min, grid_max); %do dStep3 here
 
 %% target set (avoid)
 % R = 1;
 % data0 = shapeCylinder(grid,ignoreDims,center,radius)
 % data0 = shapeCylinder(g, 3, [0; 0; 0], R);
-center = [pi/2, pi, 0, 0];
-R = pi/2;
-%data0 = shapeSphere(g,center,R);
+% center = [pi/2, pi, 0, 0];
+% R = pi/2;
+% data0 = shapeSphere(g,center,R);
 data0 = -shapeGroundPlane(g, arm);
 
 %% time vector
@@ -100,7 +67,9 @@ HJIextraArgs.deleteLastPlot = true; %delete previous plot as you update
 [data, tau2, ~] = ...
   HJIPDE_solve(data0, tau, schemeData, 'maxVOverTime', HJIextraArgs);
 
-save('junk.mat', 'data', 'tau2')
+save('/home/andreabajcsy/hybrid_ws/src/rawr/matfiles/arm2DpiN81.mat')
+
+compTraj = false;
 
 %% Compute optimal trajectory from some initial state
 if compTraj
