@@ -63,7 +63,7 @@ arm = Arm4D(xinit, uMin, uMax, dims, l1, l2, m1, m2, grid_min, grid_max); %do dS
 % center = [pi/2, pi, 0, 0];
 % R = pi/2;
 % data0 = shapeSphere(g,center,R);
-data0 = -shapeGroundPlane(g, arm);
+data0 = -shapeGroundPlane(g, arm); % this is your l(x)
 
 %% time vector
 t0 = 0;
@@ -86,19 +86,17 @@ schemeData.accuracy = 'low'; %set accuracy
 schemeData.uMode = uMode;
 %do dStep4 here
 
-
-%% If you have obstacles, compute them here
-
 %% Compute value function
 
 HJIextraArgs.visualize = true; %show plot
 HJIextraArgs.fig_num = 1; %set figure number
 HJIextraArgs.deleteLastPlot = true; %delete previous plot as you update
+minWith = 'maxVOverTime';
 
-%[data, tau, extraOuts] = ...
-% HJIPDE_solve(data0, tau, schemeData, minWith, extraArgs)
+% data0 = l(x) so that you start your computation at the final time
+% with value: V(x,T) = l(x) = data0
 [data, tau2, ~] = ...
-  HJIPDE_solve(data0, tau, schemeData, 'maxVOverTime', HJIextraArgs);
+  HJIPDE_solve(data0, tau, schemeData, minWith, HJIextraArgs);
 
 save('/home/andreabajcsy/hybrid_ws/src/rawr/matfiles/armN11_2.mat')
 
